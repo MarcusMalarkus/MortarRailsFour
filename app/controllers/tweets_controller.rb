@@ -19,6 +19,7 @@ class TweetsController < ActionController::Base
     # @coffee = 0
     # @tea = 0
 
+      sse = ServerSide::SSE.new(response.stream)
     begin
     #   client.filter(:track => topics.join(",")) do |tweet|
     #     @coffee += 1 if tweet.text.match('coffee')
@@ -27,13 +28,14 @@ class TweetsController < ActionController::Base
     #   end
 
     1000.times do |x|
-      response.stream.write "data: #{x}\n\n".to_json
+      sse.write "data: #{x}\n\n".to_json
+
     end
 
     rescue IOError
       # When the client disconnects, we'll get an IOError on write
     ensure
-      response.stream.close
+      sse.close
       puts '*' * 80
       puts "stream closed"
     end
